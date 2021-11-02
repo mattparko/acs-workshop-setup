@@ -1,0 +1,100 @@
+---
+- name: Deploy EC2 instance for ACS demo
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  tasks:
+    - name: Create VPC network
+      ec2_vpc_net:
+        name: vpc-01
+        cidr_block: 10.10.0.0/24
+        state: present
+      register: vpc_net
+
+    - name: Create VPC subnet
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc_net.vpc.id }}"
+        cidr: 10.10.0.0/24
+        state: present
+      register: vpc_subnet
+
+    - name: Create a VPC Internet gateway
+      ec2_vpc_igw:
+        vpc_id: "{{ vpc_net.vpc.id }}"
+        state: present
+      register: vpc_igw
+
+    - name: Gather route table details
+      ec2_vpc_route_table_info:
+        filters:
+          vpc-id: "{{ vpc_net.vpc.id }}"
+      register: vpc_route_tables
+
+    - name: Create VPC route table
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc_net.vpc.id }}"
+        route_table_id: "{{ vpc_route_tables.route_tables.0.id }}"
+        lookup: id
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ vpc_igw.gateway_id }}"
+        purge_routes: no
+        state: present
+      register: vpc_route_table
+
+    - name: Create security group
+      ec2_group:
+        name: acs-demo
+        description: ACS demo security group
+        vpc_id: "{{ vpc_net.vpc.id }}"
+        rules:
+          - proto: tcp
+            ports:
+              - 22
+              - 5432
+            cidr_ip: 0.0.0.0/0
+            rule_desc: all
+        state: present
+      register: security_group
+
+    - name: Create EC2 key pair
+      ec2_key:
+        name: keypair-01
+        key_material: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present
+      register: ec2_keypair
+
+    - name: Create an EC2 instance
+      ec2:
+        key_name: keypair-01
+        group: acs-demo
+        instance_type: t2.medium
+        image: ami-0a443decce6d88dc2
+        wait: yes
+        wait_timeout: 500
+        vpc_subnet_id: "{{ vpc_subnet.subnet.id }}"
+        assign_public_ip: yes
+        instance_tags:
+          Name: acs-demo-01
+        count_tag:
+          Name: acs-demo-01
+        exact_count: 1
+
+    # This is needed for idempotency (as opposed to registering output from
+    # above task - instance details are not registered on subsequent runs)
+    - name: Get EC2 instance info
+      ec2_instance_info:
+        filters:
+          "tag:Name": acs-demo-01
+      register: ec2_instance
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ ec2_instance.instances.0.public_ip_address }}"
+        groupname: ec2
+
+    - name: Wait for instance to finish provisioning
+      wait_for:
+        host: "{{ ec2_instance.instances.0.public_ip_address }}"
+        port: 22

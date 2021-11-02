@@ -1,0 +1,28 @@
+---
+- name: Create Stackrox API token
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Retrieve Stackrox URL
+      shell: oc get route central -n stackrox -o json | jq -r .spec.host
+      register: stackrox_route
+    
+    - name: Generate Stackrox API token
+      uri:
+        url: https://{{ stackrox_route.stdout }}/v1/apitokens/generate
+        url_username: admin
+        url_password: stackrox
+        force_basic_auth: yes
+        return_content: yes
+        validate_certs: no
+        headers:
+          Content-Type: application/json
+          Accept: application/json
+        method: POST
+        body_format: json
+        body:
+          name: acs-demo-token
+          role: Continuous Integration
+      register: stackrox_token

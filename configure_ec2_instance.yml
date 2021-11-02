@@ -1,0 +1,17 @@
+---
+- name: Configure EC2 instance
+  hosts: ec2
+  gather_facts: true
+
+  tasks:
+    - name: Download metasploit installer
+      get_url:
+        url: https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb
+        dest: /tmp/msfinstall
+        mode: "0755"
+
+    - name: Install metasploit
+      shell:
+        cmd: /tmp/msfinstall
+        creates: /opt/metasploit-framework/bin/msfconsole
+      become: true

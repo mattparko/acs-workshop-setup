@@ -1,0 +1,7 @@
+localhost
+
+[ec2]
+
+[ec2:vars]
+ansible_user=ec2-user
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

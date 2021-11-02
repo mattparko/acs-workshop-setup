@@ -1,0 +1,9 @@
+---
+- name: Ensure we are logged in to the correct cluster as an admin
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Ensure we are authenticated to an OpenShift cluster as an admin
+      shell: oc auth can-i '*' '*'

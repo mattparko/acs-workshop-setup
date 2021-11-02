@@ -1,0 +1,10 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  annotations:
+    openshift.io/description: Vulnerable struts app
+    openshift.io/display-name: devops
+  name: devops
+spec:
+  finalizers:
+  - kubernetes

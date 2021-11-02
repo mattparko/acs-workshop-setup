@@ -1,0 +1,30 @@
+---
+- name: Output useful information about the environment
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - debug:
+        msg: |
+          #####################
+          # EC2 Instance
+          #####################
+
+          Public IP:  {{ ec2_instance.instances.0.public_ip_address }}
+          Public DNS: {{ ec2_instance.instances.0.public_dns_name }}
+
+          To access the instance:
+            ssh ec2-user@{{ ec2_instance.instances.0.public_dns_name }}
+
+          #####################
+          # Stackrox API Token
+          #####################
+
+          Run the following command to add the token to your environment variables:
+
+          export ROX_API_TOKEN={{ stackrox_token.json.token }}
+
+          To verify success, run the following:
+
+          roxctl --insecure-skip-tls-verify=true -e "{{ stackrox_route.stdout }}:443" image scan --image=gcr.io/rox-se/struts-violations/visa-processor:latest-v2

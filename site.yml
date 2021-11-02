@@ -1,0 +1,7 @@
+---
+- import_playbook: test_ocp_auth.yml
+- import_playbook: deploy_ec2_instance.yml
+- import_playbook: configure_ec2_instance.yml
+- import_playbook: struts_app.yml
+- import_playbook: stackrox_token.yml
+- import_playbook: environment_details.yml
