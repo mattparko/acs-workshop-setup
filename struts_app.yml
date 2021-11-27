@@ -11,10 +11,10 @@
         src: files/devops-project.yml
 
     - name: Create struts service account
-      shell: oc get sa struts-sa -n devops || oc create sa struts-sa -n devops
+      shell: oc get sa struts-sa -n smartgates || oc create sa struts-sa -n smartgates
 
     - name: Add cluster-admin to struts service account
-      shell: oc adm policy add-role-to-user cluster-admin -z struts-sa -n devops
+      shell: oc adm policy add-role-to-user cluster-admin -z struts-sa -n smartgates
 
     - name: Deploy struts app
       k8s:
@@ -22,11 +22,11 @@
         src: files/struts-deployment.yml
 
     - name: Create struts service
-      shell: oc get svc struts-app -n devops || oc expose deployment/struts-app --port 8080 -n devops
+      shell: oc get svc cbr-smartgate -n smartgates || oc expose deployment/cbr-smartgate --port 8080 -n smartgates
 
     - name: Create struts route
-      shell: oc get route struts-app -n devops || oc expose svc struts-app -n devops
+      shell: oc get route cbr-smartgate -n smartgates || oc expose svc cbr-smartgate -n smartgates
 
     - name: Store struts route
-      shell: oc get route struts-app -n devops -o json | jq -r .spec.host
+      shell: oc get route cbr-smartgate -n smartgates -o json | jq -r .spec.host
       register: struts_route
