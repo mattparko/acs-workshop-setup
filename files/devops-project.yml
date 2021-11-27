@@ -3,8 +3,8 @@ kind: Project
 metadata:
   annotations:
     openshift.io/description: Vulnerable struts app
-    openshift.io/display-name: devops
-  name: devops
+    openshift.io/display-name: smartgates
+  name: smartgates
 spec:
   finalizers:
   - kubernetes
