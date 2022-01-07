@@ -1,0 +1,26 @@
+---
+- name: Create a vulnerable log4shell application
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Create project for log4shell app
+      k8s:
+        state: present
+        src: files/devops-project.yml
+
+    - name: Deploy log4shell app
+      k8s:
+        state: present
+        src: files/log4shell-deployment.yml
+
+    - name: Create log4shell service
+      shell: oc get svc log4shell-app -n devops || oc expose deployment/log4shell-app --port 8080 -n devops
+
+    - name: Create log4shell route
+      shell: oc get route log4shell-app -n devops || oc expose svc log4shell-app -n devops
+
+    - name: Store log4shell route
+      shell: oc get route log4shell-app -n devops -o json | jq -r .spec.host
+      register: log4shell_route
