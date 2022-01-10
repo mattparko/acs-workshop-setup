@@ -27,4 +27,4 @@
 3. Be sure to add `ROX_API_TOKEN` to your environment variables (or store it for later)
 
 ### Notes
-1. If you need to re-run this playbook multiple times, you can skip downloading the exploit server archive with `ansible-playbook site.yml --skip-tags="download_jndi"
+1. If you need to re-run this playbook multiple times, you can skip downloading the exploit server archive with `ansible-playbook site.yml --skip-tags="download_jndi"`
