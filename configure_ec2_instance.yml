@@ -4,14 +4,47 @@
   gather_facts: true
 
   tasks:
-    - name: Download metasploit installer
-      get_url:
-        url: https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb
-        dest: /tmp/msfinstall
-        mode: "0755"
-
-    - name: Install metasploit
+  ## Codifying https://github.com/christophetd/log4shell-vulnerable-app
+  ## Note that this returns a 200 from the Wayback Machine with a message that the original site returned a 302,
+  ## and using get_url simply returns the HTML.
+  ## Instead, we use curl and follow redirects explicitly
+    - name: Download JNDIExploit server
       shell:
-        cmd: /tmp/msfinstall
-        creates: /opt/metasploit-framework/bin/msfconsole
-      become: true
+        cmd: "curl -L https://web.archive.org/web/20211211031401/https://github.com/feihong-cs/JNDIExploit/releases/download/v1.2/JNDIExploit.v1.2.zip --output /tmp/JNDIExploit.v1.2.zip"
+      tags:
+        - download_jndi
+
+    - name: Ensure the extract path exists
+      file:
+        path: /opt/jndi/
+        state: directory
+      become: yes
+
+    - name: Install dependencies
+      yum:
+        name: "{{ item }}"
+        state: present
+      become: yes
+      loop:
+        - unzip
+        - java-1.8.0-openjdk
+
+    - name: Unzip artifacts
+      unarchive:
+        src: /tmp/JNDIExploit.v1.2.zip
+        dest: /opt/jndi/
+        remote_src: yes
+      become: yes
+
+    - name: Template the systemd definition
+      template:
+        src: templates/jndi.service
+        dest: /usr/lib/systemd/system/jndi.service
+      become: yes
+
+    - name: Start the JNDI service
+      systemd:
+        state: started
+        daemon_reload: yes
+        name: jndi
+      become: yes

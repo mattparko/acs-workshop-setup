@@ -1,0 +1,9 @@
+[Unit]
+Description=JNDI Exploit Server
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java -jar /opt/jndi/JNDIExploit-1.2-SNAPSHOT.jar -i {{ hostvars['localhost']['ec2_instance']['instances'][0]['public_ip_address'] }} -p 8888
+
+[Install]
+WantedBy=multi-user.target

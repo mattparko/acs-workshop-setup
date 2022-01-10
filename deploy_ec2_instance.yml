@@ -52,7 +52,8 @@
           - proto: tcp
             ports:
               - 22
-              - 5432
+              - 8888
+              - 1389
             cidr_ip: 0.0.0.0/0
             rule_desc: all
         state: present
@@ -87,6 +88,7 @@
       ec2_instance_info:
         filters:
           "tag:Name": acs-demo-01
+          instance-state-name: ["running"]
       register: ec2_instance
 
     - name: Add new instance to host group
