@@ -66,12 +66,24 @@
         state: present
       register: ec2_keypair
 
+    - name: Get AMI info
+      ec2_ami_facts:
+        owners: 309956199498
+        filters:
+          name: "RHEL-8.4*x86_64*"
+      register: amis
+
+    - name: Set AMI facts
+      set_fact:
+        rhel_ami: >
+          {{ amis.images | selectattr('name', 'defined') | sort(attribute='creation_date') | last }}
+
     - name: Create an EC2 instance
       ec2:
         key_name: keypair-01
         group: acs-demo
         instance_type: t2.medium
-        image: ami-0a443decce6d88dc2
+        image: "{{ rhel_ami.image_id }}"
         wait: yes
         wait_timeout: 500
         vpc_subnet_id: "{{ vpc_subnet.subnet.id }}"
