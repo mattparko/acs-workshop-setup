@@ -1,0 +1,53 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: log4shell-app
+  namespace: devops
+  labels:
+    app: log4shell-app
+    app.kubernetes.io/component: log4shell-app
+    app.kubernetes.io/instance: log4shell-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: log4shell-app
+  template:
+    metadata:
+      labels:
+        deployment: log4shell-app
+    spec:
+      containers:
+        - name: log4shell-app
+          image: quay.io/smileyfritz/log4shell-app:v0.5
+          securityContext:
+            capabilities:
+              add:
+                - SYS_ADMIN
+                - NET_ADMIN
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: unix-socket
+              mountPath: /var/run/docker.sock
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+      volumes:
+        - name: unix-socket
+          hostPath:
+            path: /var/run/docker.sock
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

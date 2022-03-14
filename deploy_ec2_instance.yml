@@ -45,7 +45,7 @@
 
     - name: Create security group
       ec2_group:
-        name: acs-demo
+        name: acs-demo-log4shell
         description: ACS demo security group
         vpc_id: "{{ vpc_net.vpc.id }}"
         rules:
@@ -54,6 +54,7 @@
               - 22
               - 8888
               - 1389
+              - 10250
             cidr_ip: 0.0.0.0/0
             rule_desc: all
         state: present
@@ -69,7 +70,7 @@
     - name: Create an EC2 instance
       ec2:
         key_name: keypair-01
-        group: acs-demo
+        group: acs-demo-log4shell
         instance_type: t2.medium
         image: ami-0a443decce6d88dc2
         wait: yes
