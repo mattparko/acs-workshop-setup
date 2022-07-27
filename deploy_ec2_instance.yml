@@ -71,7 +71,7 @@
       ec2_ami_facts:
         owners: 309956199498
         filters:
-          name: "RHEL-8.4*x86_64*"
+          name: "RHEL-8.6*x86_64*"
       register: amis
 
     - name: Set AMI facts
