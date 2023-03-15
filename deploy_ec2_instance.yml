@@ -68,7 +68,7 @@
       register: ec2_keypair
 
     - name: Get AMI info
-      ec2_ami_facts:
+      amazon.aws.ec2_ami_info:
         owners: 309956199498
         filters:
           name: "RHEL-8.6*x86_64*"
@@ -103,6 +103,11 @@
           "tag:Name": acs-demo-01
           instance-state-name: ["running"]
       register: ec2_instance
+
+    - name: Create an Elastic IP for the instance
+      ec2_eip:
+        device_id: "{{ ec2_instance.instances.0.instance_id }}"
+      register: eip
 
     - name: Add new instance to host group
       add_host:

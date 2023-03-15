@@ -28,6 +28,7 @@
       loop:
         - unzip
         - java-1.8.0-openjdk
+        - socat
 
     - name: Unzip artifacts
       unarchive:

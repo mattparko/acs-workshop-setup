@@ -3,5 +3,4 @@
 - import_playbook: deploy_ec2_instance.yml
 - import_playbook: configure_ec2_instance.yml
 - import_playbook: log4shell_app.yml
-- import_playbook: stackrox_token.yml
 - import_playbook: environment_details.yml

