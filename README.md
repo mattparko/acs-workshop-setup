@@ -11,7 +11,7 @@
     export AWS_REGION=ap-southeast-2
     ```
 5. Install Ansible dependencies on control node
-   - Ansible 2.9
+   - Ansible Core 2.14
    - python3-boto
    - python3-boto3
    - python3-kubernetes
