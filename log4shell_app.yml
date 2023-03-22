@@ -9,6 +9,7 @@
       k8s:
         state: present
         src: files/devops-project.yml
+      ignore_errors: true
 
     - name: Deploy log4shell app
       k8s:
