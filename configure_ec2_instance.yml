@@ -48,4 +48,5 @@
         state: started
         daemon_reload: yes
         name: jndi
+        enabled: true
       become: yes
